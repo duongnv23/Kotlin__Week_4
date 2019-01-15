@@ -8,7 +8,7 @@ fun <T> createGameBoard(width: Int): GameBoard<T> = TODO()
 
 class SquareBoardImpl(override val width: Int) : SquareBoard {
 
-    private val cells = Array(width, { row -> Array(width, { column -> Cell(row + 1, column + 1) }) })
+    private val cells = Array(width) { row -> Array(width) { column -> Cell(row + 1, column + 1) } }
 
 
     override fun getCellOrNull(i: Int, j: Int): Cell? {

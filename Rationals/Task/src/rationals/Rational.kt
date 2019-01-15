@@ -4,11 +4,32 @@ import java.math.BigInteger
 
 fun gcd(a: BigInteger, b: BigInteger): BigInteger = if (b == BigInteger.ZERO) a else gcd(b, a.mod(b))
 fun lcm(a: BigInteger, b: BigInteger) = (a.times(b)).div(gcd(a, b))
+class Rational(
+        num: BigInteger,
+        den: BigInteger
+):Comparable<Rational> {
 
-class Rational(val numerator: BigInteger, val denominator: BigInteger) {
+    val numerator: BigInteger
+    val denominator: BigInteger
+
     init {
-        if (BigInteger.ZERO == denominator) {
-            throw IllegalArgumentException("denominator must be not 0")
+        if (BigInteger.ZERO == den) {
+            throw IllegalArgumentException("denominator must be greater than 0")
+        }
+
+        if(BigInteger.ZERO==num){
+            numerator = BigInteger.ZERO
+            denominator=den.abs()
+        }else {
+            val gcd = gcd(num.abs(), den.abs())
+
+            denominator = den.div(gcd).abs()
+            numerator = if ((num > BigInteger.ZERO && den> BigInteger.ZERO) || (num< BigInteger.ZERO && den< BigInteger.ZERO)) {
+                num.div(gcd).abs()
+            }else{
+                num.div(gcd).abs().negate()
+
+            }
         }
     }
 
@@ -23,17 +44,79 @@ class Rational(val numerator: BigInteger, val denominator: BigInteger) {
 
     private fun rebaseNumerator(lcm: BigInteger) = numerator * (lcm / denominator)
 
+    operator fun minus(other: Rational): Rational {
+        return if (denominator == other.denominator) {
+            Rational(numerator + other.numerator, denominator)
+        } else {
+            val lcm = lcm(denominator, other.denominator)
+            Rational(this.rebaseNumerator(lcm) - other.rebaseNumerator(lcm), lcm)
+        }
+    }
+
+    operator fun times(other: Rational): Rational {
+        val n = this.numerator * other.numerator
+        val d = this.denominator * other.denominator
+        val gcd = gcd(n, d)
+        return Rational(n.div(gcd), d.div(gcd))
+    }
+
+    operator fun div(other: Rational): Rational {
+        val n = this.numerator * other.denominator
+        val d = this.denominator * other.numerator
+        val gcd = gcd(n, d)
+        return Rational(n.div(gcd), d.div(gcd))
+    }
+
+    operator fun unaryMinus(): Rational {
+        return Rational(this.numerator.unaryMinus(), this.denominator)
+    }
+
+    override operator fun compareTo(other: Rational): Int {
+        return if (denominator == other.denominator) {
+            numerator.compareTo(other.numerator)
+        } else {
+            val lcm = lcm(denominator, other.denominator)
+            this.rebaseNumerator(lcm).compareTo(other.rebaseNumerator(lcm))
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null) {
+            return false
+        }
+
+        if (other !is Rational) {
+            return false
+        }
+
+        if (this === other) {
+            return true
+        }
+
+        if (this.denominator == other.denominator) {
+            return this.numerator == other.numerator
+        }
+
+        val lcm = lcm(this.denominator, other.denominator)
+        return this.rebaseNumerator(lcm) == other.rebaseNumerator(lcm)
+    }
+
+
+
+    override fun toString(): String {
+        if(BigInteger.ONE == denominator) return numerator.toString()
+        return numerator.toString() + "/" + denominator.toString()
+    }
 }
 
 
 fun String.toRational(): Rational {
 
-    if (Regex("""^\d+/\d+$""").matches(this)) {
-        throw IllegalArgumentException("String must be formatted: 'numerator/denominator'");
+    if(this.contains("/")) {
+        val split = this.split('/')
+        return Rational(split[0].toBigInteger(), split[1].toBigInteger())
     }
-
-    val split = this.split('/')
-    return Rational(split[0].toBigInteger(), split[1].toBigInteger())
+    return Rational(BigInteger(this), BigInteger.ONE)
 }
 
 infix fun BigInteger.divBy(denominator: BigInteger): Rational {
@@ -81,5 +164,6 @@ fun main(args: Array<String>) {
     println("912016490186296920119201192141970416029".toBigInteger() divBy
             "1824032980372593840238402384283940832058".toBigInteger() == 1 divBy 2)
 }
+
 
 
