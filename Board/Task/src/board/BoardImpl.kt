@@ -1,15 +1,12 @@
 package board
 
-import board.Direction.*
-
 fun createSquareBoard(width: Int): SquareBoard = SquareBoardImpl(width)
 fun <T> createGameBoard(width: Int): GameBoard<T> = TODO()
 
 
-class SquareBoardImpl(override val width: Int) : SquareBoard {
+open class SquareBoardImpl(override val width: Int) : SquareBoard {
 
-    private val cells = Array(width, { row -> Array(width, { column -> Cell(row + 1, column + 1) }) })
-
+    private val cells = Array(width) { row -> Array(width) { column -> Cell(row + 1, column + 1) } }
 
     override fun getCellOrNull(i: Int, j: Int): Cell? {
         if (i < 1 || i > width || j < 1 || j > width) {
@@ -29,17 +26,29 @@ class SquareBoardImpl(override val width: Int) : SquareBoard {
         return cells.iterator().asSequence().flatMap { it -> it.iterator().asSequence() }.toList()
     }
 
-    override fun getRow(i: Int, jRange: IntProgression): List<Cell> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getRow(row: Int, columnRange: IntProgression): List<Cell> {
+        if (row > width) {
+            return emptyList()
+        }
+
+        return columnRange.iterator().asSequence().takeWhile { it <= width }.map { cells[row-1][it-1] }.toList()
     }
 
-    override fun getColumn(iRange: IntProgression, j: Int): List<Cell> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getColumn(rowRange: IntProgression, column: Int): List<Cell> {
+        if (column > width) {
+            return emptyList()
+        }
+
+        return rowRange.iterator().asSequence().takeWhile { it <= width }.map { cells[it-1][column-1] }.toList()
     }
 
     override fun Cell.getNeighbour(direction: Direction): Cell? {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return when (direction) {
+            Direction.UP -> getCellOrNull(i - 1, j)
+            Direction.DOWN -> getCellOrNull(i + 1, j)
+            Direction.LEFT -> getCellOrNull(i, j - 1)
+            Direction.RIGHT -> getCellOrNull(i, j + 1)
+        }
     }
 
 }
-
