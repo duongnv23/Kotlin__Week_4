@@ -1,7 +1,12 @@
 package board
 
 class GameBoardImpl<T>(width: Int) : GameBoard<T>, SquareBoardImpl(width) {
-    private val map = HashMap<Cell, T?>()
+    private val map = HashMap<Cell, T?>(width)
+
+    init {
+        getAllCells().asSequence().forEach { it -> map[it] = null }
+    }
+
     override fun get(cell: Cell): T? {
         return map[cell]
     }
