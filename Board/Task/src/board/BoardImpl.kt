@@ -1,7 +1,7 @@
 package board
 
 fun createSquareBoard(width: Int): SquareBoard = SquareBoardImpl(width)
-fun <T> createGameBoard(width: Int): GameBoard<T> = TODO()
+fun <T> createGameBoard(width: Int): GameBoard<T> = GameBoardImpl(width)
 
 
 open class SquareBoardImpl(override val width: Int) : SquareBoard {
@@ -26,20 +26,20 @@ open class SquareBoardImpl(override val width: Int) : SquareBoard {
         return cells.iterator().asSequence().flatMap { it -> it.iterator().asSequence() }.toList()
     }
 
-    override fun getRow(row: Int, columnRange: IntProgression): List<Cell> {
-        if (row > width) {
+    override fun getRow(i: Int, jRange: IntProgression): List<Cell> {
+        if (i > width) {
             return emptyList()
         }
 
-        return columnRange.iterator().asSequence().takeWhile { it <= width }.map { cells[row-1][it-1] }.toList()
+        return jRange.iterator().asSequence().takeWhile { it <= width }.map { cells[i-1][it-1] }.toList()
     }
 
-    override fun getColumn(rowRange: IntProgression, column: Int): List<Cell> {
-        if (column > width) {
+    override fun getColumn(iRange: IntProgression, j: Int): List<Cell> {
+        if (j > width) {
             return emptyList()
         }
 
-        return rowRange.iterator().asSequence().takeWhile { it <= width }.map { cells[it-1][column-1] }.toList()
+        return iRange.iterator().asSequence().takeWhile { it <= width }.map { cells[it-1][j-1] }.toList()
     }
 
     override fun Cell.getNeighbour(direction: Direction): Cell? {

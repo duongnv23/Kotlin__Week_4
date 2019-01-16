@@ -1,7 +1,7 @@
 package board
 
 class GameBoardImpl<T>(width: Int) : GameBoard<T>, SquareBoardImpl(width) {
-    private val map: HashMap<Cell, T?>()
+    private val map = HashMap<Cell, T?>()
     override fun get(cell: Cell): T? {
         return map[cell]
     }
@@ -11,19 +11,19 @@ class GameBoardImpl<T>(width: Int) : GameBoard<T>, SquareBoardImpl(width) {
     }
 
     override fun filter(predicate: (T?) -> Boolean): Collection<Cell> {
-        return map.entries.removeIf { predicate(it.value) }.
+        return map.entries.filter { it -> predicate(it.value) }.map { it.key }
     }
 
     override fun find(predicate: (T?) -> Boolean): Cell? {
-        map.values.filter(predicate).
+        return map.entries.asSequence().filter { it -> predicate(it.value) }.map { it.key }.firstOrNull()
     }
 
     override fun any(predicate: (T?) -> Boolean): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return map.values.any(predicate)
     }
 
     override fun all(predicate: (T?) -> Boolean): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return map.values.all(predicate)
     }
 
 }
